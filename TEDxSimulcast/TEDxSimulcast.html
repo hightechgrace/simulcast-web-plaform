@@ -1,0 +1,136 @@
+<head>
+  <title>TEDxSimulcast</title>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true"></script>
+  <script>
+  	google.maps.visualRefresh = true;
+	var map;
+	var infowindow = null;
+
+	function initialize() {
+	  var mapOptions = {
+	    zoom: 6,
+	    mapTypeId: google.maps.MapTypeId.ROADMAP
+	  };
+	  map = new google.maps.Map(document.getElementById('map-canvas'),
+	      mapOptions);
+
+	  // Try HTML5 geolocation
+	  if(navigator.geolocation) {
+	    navigator.geolocation.getCurrentPosition(function(position) {
+	      var pos = new google.maps.LatLng(position.coords.latitude,
+	                                       position.coords.longitude);
+
+	      map.setCenter(pos);
+	    }, function() {
+	      handleNoGeolocation(true);
+	    });
+	  } else {
+	    // Browser doesn't support Geolocation
+	    handleNoGeolocation(false);
+	  }
+	}
+
+	function handleNoGeolocation(errorFlag) {
+	    var content = 'Take a look around to find a viewing party.<br /><input type="text" class="event_address_nogeo" id="event_address_nogeo" placeholder="Search for a place"/><br /><button class="btn find-location-nogeo" id="find-location-nogeo">Go</button>';
+	  
+	  var options = {
+	    map: map,
+	    position: new google.maps.LatLng(-33.963333, 18.476389),
+	    content: content
+	  };
+
+	  infowindow = new google.maps.InfoWindow(options);
+	  map.setCenter(options.position);
+	}
+
+
+	google.maps.event.addDomListener(window, 'load', initialize);
+
+	
+  </script>
+</head>
+
+<body>
+  {{> map}}
+</body>
+
+<template name="map">
+    <div class="section-call-to-action" id="event_call_to_action">
+        <div class="content">
+			<div style="float:right">
+				<a class="update-map" href="#AddEventWithMyLocation"><i class="icon-refresh"></i> Refresh</a>  	
+			</div>
+            <a href="#" onclick="$('#add_event_tools').fadeToggle(300);$('#event_call_to_action').toggle()">
+            	<strong>+</strong> Add your own viewing party
+            </a>
+        </div>
+    </div>
+    <div class="section-header hide" id="add_event_tools">
+    	<div class="content">
+    		<div class="pull-right">
+    			<a href="#"  onclick="$('#add_event_tools').toggle();$('#event_call_to_action').fadeToggle(300)">X</a>
+    		</div>
+			<a class="my-location" href="#AddEventWithMyLocation"><i class="icon-screenshot"></i> Use my current location</a>  	
+		
+	or 
+   		<input type="text" id="event_address">
+  		<button class="event-address btn"><i class="icon-search"></i> Search</button>
+	</div>
+</div>
+ 
+  <div style="clear:both;"></div>
+  <div id="map-canvas" class="map" style="height:550px"></div>
+
+<!-- Add Event Modal -->
+<div id="eventForm" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="eventFormLabel" aria-hidden="true">
+  <div class="modal-header">
+    <h3 id="eventFormLabel">Just a couple of deets...</h3>
+  </div>
+  <div class="modal-body">
+  	<div style="color:red" id="event_details_errors"></div>
+  	<form id="event_details">
+	    <p>What is the name of your event?*</p>
+	    <input name="eventName" id="eventName" type="text" placeholder="Matt's awesome simulcast (Free beer)...">
+	    <p>How can someone contact you to RSVP?*</p>
+	    <input name="eventContact" id="eventContact" type="text" placeholder="Email or phone...">
+	    <p>What is the entrance fee?</p>
+	    <input name="eventFee" id="eventFee" type="text" placeholder="Borewors and rolls...">
+	    <p>Password* (this will be used if you need to edit your event)</p>
+	    <input name="eventPassword" id="eventPassword" type="password" placeholder="******">
+	</form>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <a class="btn btn-info add-event" data-toggle="modal" href="#">Add your event!</a>
+  </div>
+</div>
+
+<!-- Edit Event Modal -->
+<div id="editEventForm" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="editEventFormLabel" aria-hidden="true">
+  <div class="modal-header">
+    <h3 id="editEventFormLabel">Just a couple of deets...</h3>
+    <strong style="color: red" id="result"></strong>
+  </div>
+  <div class="modal-body">
+  	<div style="color:red" id="event_details_errors"></div>
+  	<form id="event_details">
+  		<p>Password*</p>
+	    <input name="updateEventPassword" id="updateEventPassword" type="password">
+	    <hr />
+	    <p>What is the name of your event?*</p>
+	    <input name="updateEventName" id="updateEventName" type="text" placeholder="Matt's awesome simulcast (Free beer)...">
+	    <p>How can someone contact you to RSVP?*</p>
+	    <input name="updateEventContact" id="updateEventContact" type="text" placeholder="Email or phone...">
+	    <p>What is the entrance fee?</p>
+	    <input name="updateEventFee" id="updateEventFee" type="text" placeholder="Borewors and rolls...">
+	    <input id="eventId" class="eventId" style="display:none" type="text" >
+	</form>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <a class="btn btn-danger delete-event" data-toggle="modal" href="#">Delete</a>
+    <a class="btn btn-info save-event-update" data-toggle="modal" href="#">Update your event!</a>
+  </div>
+</div>
+
+</template>
